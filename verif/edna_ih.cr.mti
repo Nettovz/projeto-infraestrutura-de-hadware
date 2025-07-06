@@ -1,0 +1,151 @@
+C:/Users/julia/OneDrive/Documentos/Risc-v-Pipeline/design/ALUController.sv {1 {vlog -work work -sv -stats=none C:/Users/julia/OneDrive/Documentos/Risc-v-Pipeline/design/ALUController.sv
+Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+-- Compiling module ALUController
+
+Top level modules:
+	ALUController
+
+} {} {}} C:/Users/julia/OneDrive/Documentos/Risc-v-Pipeline/design/RegFile.sv {1 {vlog -work work -sv -stats=none C:/Users/julia/OneDrive/Documentos/Risc-v-Pipeline/design/RegFile.sv
+Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+-- Compiling module RegFile
+
+Top level modules:
+	RegFile
+
+} {} {}} C:/Users/julia/OneDrive/Documentos/Risc-v-Pipeline/design/BranchUnit.sv {1 {vlog -work work -sv -stats=none C:/Users/julia/OneDrive/Documentos/Risc-v-Pipeline/design/BranchUnit.sv
+Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+-- Compiling module BranchUnit
+
+Top level modules:
+	BranchUnit
+
+} {} {}} C:/Users/julia/OneDrive/Documentos/Risc-v-Pipeline/design/Memoria32.sv {1 {vlog -work work -sv -stats=none C:/Users/julia/OneDrive/Documentos/Risc-v-Pipeline/design/Memoria32.sv
+Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+-- Compiling module Memoria32
+
+Top level modules:
+	Memoria32
+
+} {} {}} C:/Users/julia/OneDrive/Documentos/Risc-v-Pipeline/design/Datapath.sv {2 {vlog -work work -sv -stats=none C:/Users/julia/OneDrive/Documentos/Risc-v-Pipeline/design/Datapath.sv
+Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+** Warning: C:/Users/julia/OneDrive/Documentos/Risc-v-Pipeline/design/Datapath.sv(3): (vlog-13233) Design unit "Datapath_sv_unit" already exists and will be overwritten. Overwriting SystemVerilog $unit with different source files.
+-- Compiling package Datapath_sv_unit
+-- Importing package Pipe_Buf_Reg_PKG
+-- Compiling module Datapath
+
+Top level modules:
+	Datapath
+
+} {} {}} C:/Users/julia/OneDrive/Documentos/Risc-v-Pipeline/design/ramOnChipData.v {1 {vlog -work work -stats=none C:/Users/julia/OneDrive/Documentos/Risc-v-Pipeline/design/ramOnChipData.v
+Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+-- Compiling module ramOnChipData
+
+Top level modules:
+	ramOnChipData
+
+} {} {}} C:/Users/julia/OneDrive/Documentos/Risc-v-Pipeline/design/adder.sv {1 {vlog -work work -sv -stats=none C:/Users/julia/OneDrive/Documentos/Risc-v-Pipeline/design/adder.sv
+Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+-- Compiling module adder
+
+Top level modules:
+	adder
+
+} {} {}} C:/Users/julia/OneDrive/Documentos/Risc-v-Pipeline/design/HazardDetection.sv {1 {vlog -work work -sv -stats=none C:/Users/julia/OneDrive/Documentos/Risc-v-Pipeline/design/HazardDetection.sv
+Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+-- Compiling module HazardDetection
+
+Top level modules:
+	HazardDetection
+
+} {} {}} C:/Users/julia/OneDrive/Documentos/Risc-v-Pipeline/design/ramOnChip32.v {1 {vlog -work work -stats=none C:/Users/julia/OneDrive/Documentos/Risc-v-Pipeline/design/ramOnChip32.v
+Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+-- Compiling module ramOnChip32
+
+Top level modules:
+	ramOnChip32
+
+} {} {}} C:/Users/julia/OneDrive/Documentos/Risc-v-Pipeline/design/flopr.sv {1 {vlog -work work -sv -stats=none C:/Users/julia/OneDrive/Documentos/Risc-v-Pipeline/design/flopr.sv
+Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+-- Compiling module flopr
+
+Top level modules:
+	flopr
+
+} {} {}} C:/Users/julia/OneDrive/Documentos/Risc-v-Pipeline/design/ForwardingUnit.sv {1 {vlog -work work -sv -stats=none C:/Users/julia/OneDrive/Documentos/Risc-v-Pipeline/design/ForwardingUnit.sv
+Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+-- Compiling module ForwardingUnit
+
+Top level modules:
+	ForwardingUnit
+
+} {} {}} C:/Users/julia/OneDrive/Documentos/Risc-v-Pipeline/design/mux2.sv {1 {vlog -work work -sv -stats=none C:/Users/julia/OneDrive/Documentos/Risc-v-Pipeline/design/mux2.sv
+Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+-- Compiling module mux2
+
+Top level modules:
+	mux2
+
+} {} {}} C:/Users/julia/OneDrive/Documentos/Risc-v-Pipeline/design/Controller.sv {1 {vlog -work work -sv -stats=none C:/Users/julia/OneDrive/Documentos/Risc-v-Pipeline/design/Controller.sv
+Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+-- Compiling module Controller
+
+Top level modules:
+	Controller
+
+} {} {}} C:/Users/julia/OneDrive/Documentos/Risc-v-Pipeline/design/RISC_V.sv {1 {vlog -work work -sv -stats=none C:/Users/julia/OneDrive/Documentos/Risc-v-Pipeline/design/RISC_V.sv
+Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+-- Compiling module riscv
+
+Top level modules:
+	riscv
+
+} {} {}} C:/Users/julia/OneDrive/Documentos/Risc-v-Pipeline/design/mux4.sv {1 {vlog -work work -sv -stats=none C:/Users/julia/OneDrive/Documentos/Risc-v-Pipeline/design/mux4.sv
+Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+-- Compiling module mux4
+
+Top level modules:
+	mux4
+
+} {} {}} C:/Users/julia/OneDrive/Documentos/Risc-v-Pipeline/design/Memoria32Data.sv {1 {vlog -work work -sv -stats=none C:/Users/julia/OneDrive/Documentos/Risc-v-Pipeline/design/Memoria32Data.sv
+Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+-- Compiling module Memoria32Data
+
+Top level modules:
+	Memoria32Data
+
+} {} {}} C:/Users/julia/OneDrive/Documentos/Risc-v-Pipeline/verif/tb_top.sv {1 {vlog -work work -sv -stats=none C:/Users/julia/OneDrive/Documentos/Risc-v-Pipeline/verif/tb_top.sv
+Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+-- Compiling module tb_top
+
+Top level modules:
+	tb_top
+
+} {} {}} C:/Users/julia/OneDrive/Documentos/Risc-v-Pipeline/design/alu.sv {1 {vlog -work work -sv -stats=none C:/Users/julia/OneDrive/Documentos/Risc-v-Pipeline/design/alu.sv
+Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+-- Compiling module alu
+
+Top level modules:
+	alu
+
+} {} {}} C:/Users/julia/OneDrive/Documentos/Risc-v-Pipeline/design/datamemory.sv {1 {vlog -work work -sv -stats=none C:/Users/julia/OneDrive/Documentos/Risc-v-Pipeline/design/datamemory.sv
+Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+-- Compiling module datamemory
+
+Top level modules:
+	datamemory
+
+} {} {}} C:/Users/julia/OneDrive/Documentos/Risc-v-Pipeline/design/imm_Gen.sv {1 {vlog -work work -sv -stats=none C:/Users/julia/OneDrive/Documentos/Risc-v-Pipeline/design/imm_Gen.sv
+Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+-- Compiling module imm_Gen
+
+Top level modules:
+	imm_Gen
+
+} {} {}} C:/Users/julia/OneDrive/Documentos/Risc-v-Pipeline/design/RegPack.sv {1 {vlog -work work -sv -stats=none C:/Users/julia/OneDrive/Documentos/Risc-v-Pipeline/design/RegPack.sv
+Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+-- Compiling package Pipe_Buf_Reg_PKG
+
+Top level modules:
+	--none--
+
+} {} {}}

@@ -19,19 +19,24 @@ module Controller (
     output logic Branch  //0: branch is not taken; 1: branch is taken
 );
 
-  logic [6:0] R_TYPE, LW, SW, BR;
+  logic [6:0] R_TYPE, I_TYPE_LOAD, I_TYPE_ARITH, S_TYPE, B_TYPE;
 
-  assign R_TYPE = 7'b0110011;  //add,and
-  assign LW = 7'b0000011;  //lw
-  assign SW = 7'b0100011;  //sw
-  assign BR = 7'b1100011;  //beq
+// Definições de opcodes
+assign R_TYPE      = 7'b0110011;  // add, sub, and, or, etc.
+assign I_TYPE_LOAD = 7'b0000011;  // lw
+assign I_TYPE_ARITH= 7'b0010011;  // addi, andi, ori, etc.
+assign S_TYPE      = 7'b0100011;  // sw
+assign B_TYPE      = 7'b1100011;  // beq, bne, etc.
 
-  assign ALUSrc = (Opcode == LW || Opcode == SW);
-  assign MemtoReg = (Opcode == LW);
-  assign RegWrite = (Opcode == R_TYPE || Opcode == LW);
-  assign MemRead = (Opcode == LW);
-  assign MemWrite = (Opcode == SW);
-  assign ALUOp[0] = (Opcode == BR);
-  assign ALUOp[1] = (Opcode == R_TYPE);
-  assign Branch = (Opcode == BR);
+// Sinais de controle
+assign ALUSrc   = (Opcode == I_TYPE_LOAD || Opcode == S_TYPE || Opcode == I_TYPE_ARITH);
+assign MemtoReg = (Opcode == I_TYPE_LOAD);
+assign RegWrite = (Opcode == R_TYPE || Opcode == I_TYPE_LOAD || Opcode == I_TYPE_ARITH);
+assign MemRead  = (Opcode == I_TYPE_LOAD);
+assign MemWrite = (Opcode == S_TYPE);  // Corrigido para S_TYPE
+assign ALUOp[0] = (Opcode == B_TYPE);
+assign ALUOp[1] = (Opcode == R_TYPE || Opcode == I_TYPE_ARITH);
+assign Branch   = (Opcode == B_TYPE);
+
+
 endmodule
