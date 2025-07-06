@@ -10,7 +10,7 @@ cModel Technology
 Z0 dC:/Users/julia/OneDrive/Documentos/Risc-v-Pipeline/verif
 vadder
 Z1 DXx6 sv_std 3 std 0 22 AD7iAPLo6nTIKk<N0eo=D3
-Z2 !s110 1751758520
+Z2 !s110 1751805505
 !i10b 1
 !s100 jao`2Y40ZU?TJH6m`C;g82
 I@4@ZfQh^[AP7eVQN1iOcg1
@@ -26,7 +26,7 @@ Z5 OV;L;10.5b;63
 r1
 !s85 0
 31
-Z6 !s108 1751758520.000000
+Z6 !s108 1751805505.000000
 Z7 !s107 ./tb_top.sv|./../design/RISC_V.sv|./../design/Datapath.sv|./../design/instructionmemory.sv|./../design/datamemory.sv|./../design/mux4.sv|./../design/mux2.sv|./../design/imm_Gen.sv|./../design/HazardDetection.sv|./../design/ForwardingUnit.sv|./../design/flopr.sv|./../design/Controller.sv|./../design/BranchUnit.sv|./../design/ALUController.sv|./../design/alu.sv|./../design/RegFile.sv|./../design/RegPack.sv|./../design/Memoria32Data.sv|./../design/Memoria32.sv|./../design/ramOnChipData.v|./../design/ramOnChip32.v|./../design/adder.sv|
 Z8 !s90 -reportprogress|300|-f|compile_verilog|
 !i113 1
@@ -112,7 +112,7 @@ R3
 !s105 Controller_sv_unit
 S1
 R0
-w1751738809
+w1751779675
 8./../design/Controller.sv
 F./../design/Controller.sv
 L0 3
@@ -225,16 +225,16 @@ vForwardingUnit
 R1
 R2
 !i10b 1
-!s100 7;[Y2emO[>6YmLAnc:Km:2
-IVMC5bl@f=mfZG7@W?[_Am1
+!s100 _U6l^d5GKz;G^UHlSkm2I0
+IjXE6dnoO[iAhgJ`?oP`VQ2
 R3
 !s105 ForwardingUnit_sv_unit
 S1
 R0
-R4
+w1751805069
 8./../design/ForwardingUnit.sv
 F./../design/ForwardingUnit.sv
-L0 3
+L0 4
 R5
 r1
 !s85 0
@@ -255,7 +255,7 @@ R3
 !s105 HazardDetection_sv_unit
 S1
 R0
-R4
+w1751805095
 8./../design/HazardDetection.sv
 F./../design/HazardDetection.sv
 L0 3
@@ -273,13 +273,13 @@ vimm_Gen
 R1
 R2
 !i10b 1
-!s100 0a1UFHoj:R=ceedLF=89T0
-IhR5<VbBk1TkJ;lVSU<dCH0
+!s100 cWK0]R:8`UV0;eJN6Fz_[3
+IRfP<e[AZ>oi=1UUgMCdQ<1
 R3
 !s105 imm_Gen_sv_unit
 S1
 R0
-w1751758205
+w1751805256
 8./../design/imm_Gen.sv
 F./../design/imm_Gen.sv
 L0 3
@@ -303,7 +303,7 @@ R3
 !s105 instructionmemory_sv_unit
 S1
 R0
-w1751758472
+w1751779669
 8./../design/instructionmemory.sv
 F./../design/instructionmemory.sv
 L0 4
@@ -532,7 +532,7 @@ R3
 !s105 tb_top_sv_unit
 S1
 R0
-R4
+w1751804859
 8./tb_top.sv
 F./tb_top.sv
 L0 3
