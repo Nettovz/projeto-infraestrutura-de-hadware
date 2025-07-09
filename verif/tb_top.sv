@@ -54,7 +54,7 @@ module tb_top;
   always_comb begin : REGISTER
     if (reg_write_sig)
       $display(
-          $time, ": Register [%d] written with value: [%X] | [%d]\n", reg_num, reg_data, reg_data
+          $time, ": Register [%d] written with value: [%X] | [%d]\n", reg_num, reg_data, $signed(reg_data)
       );
   end : REGISTER
 
