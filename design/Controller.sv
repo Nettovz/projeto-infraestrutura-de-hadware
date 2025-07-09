@@ -38,5 +38,4 @@ assign ALUOp[0] = (Opcode == B_TYPE);
 assign ALUOp[1] = (Opcode == R_TYPE || Opcode == I_TYPE_ARITH);
 assign Branch   = (Opcode == B_TYPE);
 
-
 endmodule

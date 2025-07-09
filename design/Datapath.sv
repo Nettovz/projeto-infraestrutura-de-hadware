@@ -39,10 +39,10 @@ module Datapath #(
 );
 
   logic [PC_W-1:0] PC, PCPlus4, Next_PC;
-  logic [INS_W-1:0] Instr;
+  logic [INS_W -1:0] Instr;
   logic [DATA_W-1:0] Reg1, Reg2;
   logic [DATA_W-1:0] ReadData;
-  logic [DATA_W-1:0] SrcB, ALUResult;
+  logic signed [DATA_W-1:0] SrcB, ALUResult;
   logic [DATA_W-1:0] ExtImm, BrImm, Old_PC_Four, BrPC;
   logic [DATA_W-1:0] WrmuxSrc;
   logic PcSel;  // mux select / flush signal

@@ -2,7 +2,7 @@
 
 module imm_Gen (
     input  logic [31:0] inst_code,
-    output logic [31:0] Imm_out
+    output logic signed [31:0] Imm_out
 );
 
  always_comb begin
