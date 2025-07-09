@@ -2,6 +2,12 @@
 
 Este repositório contém os arquivos base para o projeto da disciplina Infraestrutura de Hardware (IF674) no CIn-UFPE. O objetivo do projeto é implementar instruções em um processador RISC-V usando SystemVerilog.
 
+## Equipe:
+
+#### Deoclécio Ivo de Melo Netto
+#### Pedro Fernandes Galindo
+#### Rafael Henrique Ayres
+
 ---
 
 ## 📝 Instruções
