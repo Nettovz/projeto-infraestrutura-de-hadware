@@ -13,29 +13,29 @@ module Datapath #(
     input  logic                 clk,
     reset,
     RegWrite,
-    MemtoReg,  // Register file writing enable   // Memory or ALU MUX
+    MemtoReg,  // Register file writing enable
     ALUsrc,
-    MemWrite,  // Register file or Immediate MUX // Memroy Writing Enable
-    MemRead,  // Memroy Reading Enable
+    MemWrite,  // Memory Writing Enable
+    MemRead,  // Memory Reading Enable
     Branch,  // Branch Enable
-    input  logic [          1:0] ALUOp,
-    input  logic [ALU_CC_W -1:0] ALU_CC,         // ALU Control Code ( input of the ALU )
-    output logic [          6:0] opcode,
-    output logic [          6:0] Funct7,
-    output logic [          2:0] Funct3,
-    output logic [          1:0] ALUOp_Current,
-    output logic [   DATA_W-1:0] WB_Data,        //Result After the last MUX
+    input  logic [1:0] ALUOp,
+    input  logic [ALU_CC_W -1:0] ALU_CC,  // ALU Control Code
+    output logic [6:0] opcode,
+    output logic [6:0] Funct7,
+    output logic [2:0] Funct3,
+    output logic [1:0] ALUOp_Current,
+    output logic [DATA_W-1:0] WB_Data,
 
-    // Para depuração no tesbench:
-    output logic [4:0] reg_num,  //número do registrador que foi escrito
-    output logic [DATA_W-1:0] reg_data,  //valor que foi escrito no registrador
-    output logic reg_write_sig,  //sinal de escrita no registrador
+    // Para depuração no testbench:
+    output logic [4:0] reg_num,
+    output logic [DATA_W-1:0] reg_data,
+    output logic reg_write_sig,
 
-    output logic wr,  // write enable
-    output logic reade,  // read enable
-    output logic [DM_ADDRESS-1:0] addr,  // address
-    output logic [DATA_W-1:0] wr_data,  // write data
-    output logic [DATA_W-1:0] rd_data  // read data
+    output logic wr,
+    output logic reade,
+    output logic [DM_ADDRESS-1:0] addr,
+    output logic [DATA_W-1:0] wr_data,
+    output logic [DATA_W-1:0] rd_data
 );
 
   logic [PC_W-1:0] PC, PCPlus4, Next_PC;
@@ -45,58 +45,37 @@ module Datapath #(
   logic signed [DATA_W-1:0] SrcB, ALUResult;
   logic [DATA_W-1:0] ExtImm, BrImm, Old_PC_Four, BrPC;
   logic [DATA_W-1:0] WrmuxSrc;
-  logic PcSel;  // mux select / flush signal
+  logic PcSel;
+  logic flush_ID_EX;
   logic [1:0] FAmuxSel;
   logic [1:0] FBmuxSel;
   logic [DATA_W-1:0] FAmux_Result;
   logic [DATA_W-1:0] FBmux_Result;
-  logic Reg_Stall;  //1: PC fetch same, Register not update
+  logic Reg_Stall;
+
+  assign flush_ID_EX = PcSel;
 
   if_id_reg A;
   id_ex_reg B;
   ex_mem_reg C;
   mem_wb_reg D;
 
-  // next PC
-  adder #(9) pcadd (
-      PC,
-      9'b100,
-      PCPlus4
-  );
-  mux2 #(9) pcmux (
-      PCPlus4,
-      BrPC[PC_W-1:0],
-      PcSel,
-      Next_PC
-  );
-  flopr #(9) pcreg (
-      clk,
-      reset,
-      Next_PC,
-      Reg_Stall,
-      PC
-  );
-  instructionmemory instr_mem (
-      clk,
-      PC,
-      Instr
-  );
+  adder #(9) pcadd (PC, 9'b100, PCPlus4);
+  mux2 #(9) pcmux (PCPlus4, BrPC[PC_W-1:0], PcSel, Next_PC);
+  flopr #(9) pcreg (clk, reset, Next_PC, Reg_Stall, PC);
 
-  // IF_ID_Reg A;
+  instructionmemory instr_mem (clk, PC, Instr);
+
   always @(posedge clk) begin
-    if ((reset) || (PcSel))   // initialization or flush
-        begin
+    if ((reset) || (PcSel)) begin
       A.Curr_Pc <= 0;
       A.Curr_Instr <= 0;
-    end
-        else if (!Reg_Stall)    // stall
-        begin
+    end else if (!Reg_Stall) begin
       A.Curr_Pc <= PC;
       A.Curr_Instr <= Instr;
     end
   end
 
-  //--// The Hazard Detection Unit
   HazardDetection detect (
       A.Curr_Instr[19:15],
       A.Curr_Instr[24:20],
@@ -105,7 +84,6 @@ module Datapath #(
       Reg_Stall
   );
 
-  // //Register File
   assign opcode = A.Curr_Instr[6:0];
 
   RegFile rf (
@@ -124,16 +102,16 @@ module Datapath #(
   assign reg_data = WrmuxSrc;
   assign reg_write_sig = D.RegWrite;
 
-  // //sign extend
-  imm_Gen Ext_Imm (
-      A.Curr_Instr,
-      ExtImm
-  );
+  imm_Gen Ext_Imm (A.Curr_Instr, ExtImm);
 
-  // ID_EX_Reg B;
   always @(posedge clk) begin
-    if ((reset) || (Reg_Stall) || (PcSel))   // initialization or flush or generate a NOP if hazard
-        begin
+    if (reset || Reg_Stall || flush_ID_EX) begin
+
+    
+     // if (flush_ID_EX) begin
+     //   $display("[FLUSH] Time=%0t | PcSel=%b | Flushing instruction=0x%h", $time, PcSel, A.Curr_Instr);
+      //end
+
       B.ALUSrc <= 0;
       B.MemtoReg <= 0;
       B.RegWrite <= 0;
@@ -150,7 +128,7 @@ module Datapath #(
       B.ImmG <= 0;
       B.func3 <= 0;
       B.func7 <= 0;
-      B.Curr_Instr <= A.Curr_Instr;  //debug tmp
+       B.Curr_Instr <= A.Curr_Instr;  //debug tmp
     end else begin
       B.ALUSrc <= ALUsrc;
       B.MemtoReg <= MemtoReg;
@@ -168,11 +146,10 @@ module Datapath #(
       B.ImmG <= ExtImm;
       B.func3 <= A.Curr_Instr[14:12];
       B.func7 <= A.Curr_Instr[31:25];
-      B.Curr_Instr <= A.Curr_Instr;  //debug tmp
+      B.Curr_Instr <= A.Curr_Instr;
     end
   end
 
-  //--// The Forwarding Unit
   ForwardingUnit forunit (
       B.RS_One,
       B.RS_Two,
@@ -184,39 +161,16 @@ module Datapath #(
       FBmuxSel
   );
 
-  // // //ALU
   assign Funct7 = B.func7;
   assign Funct3 = B.func3;
   assign ALUOp_Current = B.ALUOp;
 
-  mux4 #(32) FAmux (
-      B.RD_One,
-      WrmuxSrc,
-      C.Alu_Result,
-      B.RD_One,
-      FAmuxSel,
-      FAmux_Result
-  );
-  mux4 #(32) FBmux (
-      B.RD_Two,
-      WrmuxSrc,
-      C.Alu_Result,
-      B.RD_Two,
-      FBmuxSel,
-      FBmux_Result
-  );
-  mux2 #(32) srcbmux (
-      FBmux_Result,
-      B.ImmG,
-      B.ALUSrc,
-      SrcB
-  );
-  alu alu_module (
-      FAmux_Result,
-      SrcB,
-      ALU_CC,
-      ALUResult
-  );
+  mux4 #(32) FAmux (B.RD_One, WrmuxSrc, C.Alu_Result, B.RD_One, FAmuxSel, FAmux_Result);
+  mux4 #(32) FBmux (B.RD_Two, WrmuxSrc, C.Alu_Result, B.RD_Two, FBmuxSel, FBmux_Result);
+  mux2 #(32) srcbmux (FBmux_Result, B.ImmG, B.ALUSrc, SrcB);
+
+  alu alu_module (FAmux_Result, SrcB, ALU_CC, ALUResult);
+
   BranchUnit #(9) brunit (
       B.Curr_Pc,
       B.ImmG,
@@ -228,10 +182,8 @@ module Datapath #(
       PcSel
   );
 
-  // EX_MEM_Reg C;
   always @(posedge clk) begin
-    if (reset)   // initialization
-        begin
+    if (reset) begin
       C.RegWrite <= 0;
       C.MemtoReg <= 0;
       C.MemRead <= 0;
@@ -257,11 +209,10 @@ module Datapath #(
       C.rd <= B.rd;
       C.func3 <= B.func3;
       C.func7 <= B.func7;
-      C.Curr_Instr <= B.Curr_Instr;  // debug tmp
+      C.Curr_Instr <= B.Curr_Instr;
     end
   end
 
-  // // // // Data memory 
   datamemory data_mem (
       clk,
       C.MemRead,
@@ -278,10 +229,8 @@ module Datapath #(
   assign wr_data = C.RD_Two;
   assign rd_data = ReadData;
 
-  // MEM_WB_Reg D;
   always @(posedge clk) begin
-    if (reset)   // initialization
-        begin
+    if (reset) begin
       D.RegWrite <= 0;
       D.MemtoReg <= 0;
       D.Pc_Imm <= 0;
@@ -299,17 +248,11 @@ module Datapath #(
       D.Alu_Result <= C.Alu_Result;
       D.MemReadData <= ReadData;
       D.rd <= C.rd;
-      D.Curr_Instr <= C.Curr_Instr;  //Debug Tmp
+      D.Curr_Instr <= C.Curr_Instr;
     end
   end
 
-  //--// The LAST Block
-  mux2 #(32) resmux (
-      D.Alu_Result,
-      D.MemReadData,
-      D.MemtoReg,
-      WrmuxSrc
-  );
+  mux2 #(32) resmux (D.Alu_Result, D.MemReadData, D.MemtoReg, WrmuxSrc);
 
   assign WB_Data = WrmuxSrc;
 
