@@ -36,19 +36,39 @@ module datamemory #(
 
     if (MemRead) begin
       case (Funct3)
-        3'b010:  //LW
-        rd <= Dataout;
-        default: rd <= Dataout;
+        3'b010: begin //LW  (ler 32 bits e preservando o sinal)
+	        rd = Dataout;
+        end
+        3'b000: begin //LB (ler 8 bits e estende para 32 bits preservando o sinal)
+	        rd = $signed(Dataout[7:0]);
+	      end
+	      3'b001:begin //LH  (ler 16 bits e estende para 32 bits preservando o sinal)
+		      rd = $signed(Dataout[15:0]);
+		    end
+		    3'b100:begin //LBU  (ler 8 bits e estende para 32 bits sem preservando o sinal)
+		      rd = {24'b0, Dataout[7:0]};
+		    end
+        default: begin
+          rd = Dataout;
+        end
       endcase
     end else if (MemWrite) begin
       case (Funct3)
-        3'b010: begin  //SW
-          Wr <= 4'b1111;
-          Datain <= wd;
+        3'b010: begin  //SW (grava 32 bits na memoria)
+          Wr = 4'b1111;
+          Datain = wd;
         end
+        3'b000: begin //SB (grava 8 bits na memoria)
+	        Wr = 4'b0001;
+	        Datain[7:0] = wd[7:0];
+	      end
+	      3'b001: begin //SH ( grava 16 bits na memoria)
+	        Wr = 4'b0011;
+	        Datain[15:0] = wd[15:0];
+	      end
         default: begin
-          Wr <= 4'b1111;
-          Datain <= wd;
+          Wr = 4'b1111;
+          Datain = wd;
         end
       endcase
     end
