@@ -23,10 +23,11 @@ module imm_Gen (
 
     7'b0100011: // S-type (stores)
       Imm_out = {{20{inst_code[31]}}, inst_code[31:25], inst_code[11:7]};
-    
-    7'b1100011: // B-type (branches)
-      Imm_out = {{19{inst_code[31]}}, inst_code[31], inst_code[7], 
-                 inst_code[30:25], inst_code[11:8], 1'b0};
+      
+    7'b1100011: begin // B-type (branches)
+      Imm_out = {{20{inst_code[31]}}, inst_code[7], inst_code[30:25], inst_code[11:8], 1'b0};
+      //$display("[IMM_GEN] B-type Imm gerado: %08x", Imm_out);
+    end
     
     7'b1101111: // J-type (jump)
       Imm_out = {{11{inst_code[31]}}, inst_code[31], inst_code[19:12], 
@@ -41,10 +42,8 @@ module imm_Gen (
     
     default: begin
       Imm_out = 32'd0;  // Melhor evitar indefinido
-      $display("Warning: Unknown instruction opcode in imm_Gen: %b", inst_code[6:0]);
     end
   endcase
 end
-
 
 endmodule
