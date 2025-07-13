@@ -48,3 +48,4 @@ Seu objetivo é implementar as instruções restantes listadas abaixo:
 | 20 | `HALT`    |       ❌      |    ❌    |      ❌      
 
 
+(saltos de desvios ocorrem com offset = 2)
