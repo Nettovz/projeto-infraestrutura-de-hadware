@@ -17,6 +17,7 @@ always_comb begin
         {2'b01, 7'b???????, 3'b000}: Operation = 4'b1010; // BEQ
         {2'b01, 7'b???????, 3'b001}: Operation = 4'b1011; // BNE
         {2'b01, 7'b???????, 3'b100}: Operation = 4'b1101; // BLT
+        {2'b01, 7'b???????, 3'b101}: Operation = 4'b1110; // BGE  
 
         // Operações R-type e I-type
         {2'b10, 7'b0100000, 3'b000}: Operation = 4'b0011; // SUB 
