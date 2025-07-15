@@ -33,15 +33,15 @@ always_comb begin
         4'b1010: ALUResult = (SrcA == SrcB) ? 1 : 0; // BEQ
         4'b1011: ALUResult = (SrcA != SrcB) ? 1 : 0; // BNE
         4'b1101: ALUResult = ($signed(SrcA) < $signed(SrcB)) ? 1 : 0; // BLT  
+        4'b1110: ALUResult = ($signed(SrcA) >= $signed(SrcB)) ? 1 : 0; // BGE
         
         default: ALUResult = 0;
     endcase
 
-    // DEBUG branch somente (mais detalhado)
-   // if (Operation == 4'b1010 || Operation == 4'b1011 || Operation == 4'b1101) begin
-    //   $display("[ALU ] Time=%0t | Operation=%b | SrcA=0x%08h (%0d) | SrcB=0x%08h (%0d) | ALUResult=%0d", 
-    //       $time, Operation, SrcA, $signed(SrcA), SrcB, $signed(SrcB), ALUResult);
-//    end
+    //if (Operation == 4'b1010 || Operation == 4'b1011 || Operation == 4'b1101 || Operation == 4'b1110) begin
+      // $display("[ALU ] Time=%0t | Operation=%b | SrcA=0x%08h (%0d) | SrcB=0x%08h (%0d) | ALUResult=%0d", 
+         //  $time, Operation, SrcA, $signed(SrcA), SrcB, $signed(SrcB), ALUResult);
+    //end
 end
 
 endmodule
