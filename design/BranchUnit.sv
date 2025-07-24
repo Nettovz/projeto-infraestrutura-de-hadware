@@ -6,6 +6,8 @@ module BranchUnit #(
     input  logic [PC_W-1:0]   Cur_PC,     // PC atual (ex: 9 bits)
     input  logic signed [31:0] Imm,       // Immediate com sinal
     input  logic              Branch,     // Instrução de branch ativa
+    input  logic              jal,
+    input  logic              jalr,
     input  logic [31:0]       AluResult,  // Resultado da ALU (1 = condição satisfeita)
     output logic [31:0]       PC_Imm,     // PC + offset (alvo do salto)
     output logic [31:0]       PC_Four,    // PC + 4 (próxima instrução normal)
@@ -32,19 +34,28 @@ module BranchUnit #(
   // Branch é tomado se Branch ativo e ALU indicar condição verdadeira (ex: rs1==rs2)
   assign Branch_Taken = Branch && (AluResult == 32'd1);
 
-  // Endereço de salto válido só se branch tomado
-  assign BrPC = Branch_Taken ? PC_Imm : 32'b0;
+  // Define o endereço do salto: jalr usa ALU result alinhado, senão PC + imm
+  assign BrPC = (jalr) ? {AluResult[31:1], 1'b0} : PC_Imm;
 
-  // Sinal para multiplexar PC
-  assign PcSel = Branch_Taken;
+  // Seleciona PC entre PC_Four (normal) ou BrPC (salto)
+  assign PcSel = (Branch_Taken | jal | jalr);
 
   // Debug para mostrar salto
-  //always @(*) begin
- //   if (Branch_Taken) begin
-    //  $display("[BRANCH] PC atual       : 0x%08h", PC_Full);
-   //   $display("[BRANCH] Offset (Imm)   : %0d (0x%08h)", Imm, Imm);
-   //   $display("[BRANCH] Alvo do salto  : 0x%08h", PC_Imm);
-  //  end
- // end
+  always @(*) begin
+    if (Branch_Taken) begin
+      $display("[BRANCH] PC atual       : 0x%08h", PC_Full);
+      $display("[BRANCH] Offset (Imm)   : %0d (0x%08h)", Imm, Imm);
+      $display("[BRANCH] Alvo do salto  : 0x%08h", PC_Imm);
+    end
+    if (jal) begin
+      $display("[JAL   ] PC atual       : 0x%08h", PC_Full);
+      $display("[JAL   ] Offset (Imm)   : %0d (0x%08h)", Imm, Imm);
+      $display("[JAL   ] Alvo do salto  : 0x%08h", PC_Imm);
+    end
+    if (jalr) begin
+      $display("[JALR  ] rs1 + Imm (ALU): 0x%08h", AluResult);
+      $display("[JALR  ] Alvo alinhado  : 0x%08h", {AluResult[31:1], 1'b0});
+    end
+  end
 
 endmodule
