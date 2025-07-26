@@ -1,3 +1,4 @@
+
 `timescale 1ns / 1ps
 
 module tb_top;
@@ -26,7 +27,7 @@ module tb_top;
       .reg_data(reg_data),
       .reg_write_sig(reg_write_sig),
       .wr(wr),
-      .rd(rd),
+      .reade(rd),
       .addr(addr),
       .wr_data(wr_data),
       .rd_data(rd_data)
@@ -54,7 +55,7 @@ module tb_top;
   always_comb begin : REGISTER
     if (reg_write_sig)
       $display(
-          $time, ": Register [%d] written with value: [%X] | [%d]\n", reg_num, reg_data, $signed(reg_data)
+          $time, ": Register [%d] written with value: [%X] | [%d]\n", reg_num, reg_data, reg_data
       );
   end : REGISTER
 
