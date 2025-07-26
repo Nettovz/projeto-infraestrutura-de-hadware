@@ -1,41 +1,50 @@
 `timescale 1ns / 1ps
 
 module Controller (
-    //Input
     input logic [6:0] Opcode,
-    //7-bit opcode field from the instruction
 
-    //Outputs
     output logic ALUSrc,
-    //0: The second ALU operand comes from the second register file output (Read data 2); 
-    //1: The second ALU operand is the sign-extended, lower 16 bits of the instruction.
     output logic MemtoReg,
-    //0: The value fed to the register Write data input comes from the ALU.
-    //1: The value fed to the register Write data input comes from the data memory.
-    output logic RegWrite, //The register on the Write register input is written with the value on the Write data input 
-    output logic MemRead,  //Data memory contents designated by the address input are put on the Read data output
-    output logic MemWrite, //Data memory contents designated by the address input are replaced by the value on the Write data input.
-    output logic [1:0] ALUOp,  //00: LW/SW; 01:Branch; 10: Rtype
-    output logic Branch  //0: branch is not taken; 1: branch is taken
+    output logic RegWrite,
+    output logic MemRead,
+    output logic MemWrite,
+    output logic [1:0] ALUOp,
+    output logic Branch,
+   output logic Jump,  // 1 bit apenas
+    output logic Jalr,s  // 1 bit apenas
+    output logic [1:0] WBSel
 );
 
-  logic [6:0] R_TYPE, I_TYPE_LOAD, I_TYPE_ARITH, S_TYPE, B_TYPE;
+  localparam R_TYPE      = 7'b0110011;
+  localparam I_TYPE_LOAD = 7'b0000011;
+  localparam I_TYPE_ARITH= 7'b0010011;
+  localparam S_TYPE      = 7'b0100011;
+  localparam B_TYPE      = 7'b1100011;
+  localparam J_TYPE      = 7'b1101111;
+  localparam JALR_TYPE   = 7'b1100111;
 
-// Definições de opcodes
-assign R_TYPE      = 7'b0110011;  // add, sub, and, or, etc.
-assign I_TYPE_LOAD = 7'b0000011;  // lw
-assign I_TYPE_ARITH= 7'b0010011;  // addi, andi, ori, etc.
-assign S_TYPE      = 7'b0100011;  // sw
-assign B_TYPE      = 7'b1100011;  // beq, bne, etc.
+  assign ALUSrc   = (Opcode == I_TYPE_LOAD || Opcode == S_TYPE || Opcode == I_TYPE_ARITH || Opcode == JALR_TYPE);
+  assign MemtoReg = (Opcode == I_TYPE_LOAD);
+  assign RegWrite = (Opcode == R_TYPE || Opcode == I_TYPE_LOAD || Opcode == I_TYPE_ARITH || Opcode == J_TYPE || Opcode == JALR_TYPE);
+  assign MemRead  = (Opcode == I_TYPE_LOAD);
+  assign MemWrite = (Opcode == S_TYPE);
+  assign ALUOp[0] = (Opcode == B_TYPE);
+  assign ALUOp[1] = (Opcode == R_TYPE || Opcode == I_TYPE_ARITH);
+  assign Branch   = (Opcode == B_TYPE);
+  assign Jump     = (Opcode == J_TYPE);
+  assign Jalr     = (Opcode == JALR_TYPE);
+  assign WBSel = (Opcode == I_TYPE_LOAD) ? 2'b01 :
+                 ((Opcode == J_TYPE || Opcode == JALR_TYPE) ? 2'b10 : 2'b00);
 
-// Sinais de controle
-assign ALUSrc   = (Opcode == I_TYPE_LOAD || Opcode == S_TYPE || Opcode == I_TYPE_ARITH);
-assign MemtoReg = (Opcode == I_TYPE_LOAD);
-assign RegWrite = (Opcode == R_TYPE || Opcode == I_TYPE_LOAD || Opcode == I_TYPE_ARITH);
-assign MemRead  = (Opcode == I_TYPE_LOAD);
-assign MemWrite = (Opcode == S_TYPE);  // Corrigido para S_TYPE
-assign ALUOp[0] = (Opcode == B_TYPE);
-assign ALUOp[1] = (Opcode == R_TYPE || Opcode == I_TYPE_ARITH);
-assign Branch   = (Opcode == B_TYPE);
+  // Bloco separado só para debug (imprime sempre que Opcode mudar)
+  always_comb begin
+    case (Opcode)
+      7'b1101111:  // jal
+        $display("[Controller] Time=%0t | Detected JAL  | WBSel=%b", $time, WBSel);
+      7'b1100111:  // jalr
+        $display("[Controller] Time=%0t | Detected JALR | WBSel=%b", $time, WBSel);
+      default: ;
+    endcase
+  end
 
 endmodule
