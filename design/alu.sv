@@ -38,10 +38,7 @@ always_comb begin
         default: ALUResult = 0;
     endcase
 
-    //if (Operation == 4'b1010 || Operation == 4'b1011 || Operation == 4'b1101 || Operation == 4'b1110) begin
-      // $display("[ALU ] Time=%0t | Operation=%b | SrcA=0x%08h (%0d) | SrcB=0x%08h (%0d) | ALUResult=%0d", 
-         //  $time, Operation, SrcA, $signed(SrcA), SrcB, $signed(SrcB), ALUResult);
-    //end
+    
 end
 
 endmodule
