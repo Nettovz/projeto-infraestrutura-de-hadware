@@ -5,12 +5,12 @@ module datamemory #(
     parameter DATA_W = 32
 ) (
     input logic clk,
-    input logic MemRead,  // comes from control unit
-    input logic MemWrite,  // Comes from control unit
-    input logic [DM_ADDRESS - 1:0] a,  // Read / Write address - 9 LSB bits of the ALU output
-    input logic [DATA_W - 1:0] wd,  // Write Data
-    input logic [2:0] Funct3,  // bits 12 to 14 of the instruction
-    output logic [DATA_W - 1:0] rd  // Read Data
+    input logic MemRead,   // control unit signal
+    input logic MemWrite,  // control unit signal
+    input logic [DM_ADDRESS - 1:0] a,  // address (9 bits)
+    input logic [DATA_W - 1:0] wd,     // write data
+    input logic [2:0] Funct3,           // funct3 bits from instruction
+    output logic [DATA_W - 1:0] rd     // read data output
 );
 
   logic [31:0] raddress;
@@ -28,44 +28,35 @@ module datamemory #(
       .Wr(Wr)
   );
 
-  always_ff @(*) begin
+  always_comb begin
     raddress = {{22{1'b0}}, a};
-    waddress = {{22{1'b0}}, {a[8:2], {2{1'b0}}}};
-    Datain = wd;
+    waddress = {{22{1'b0}}, {a[8:2], 2'b00}};
+    Datain = 32'b0;  // limpar antes de atribuições parciais
     Wr = 4'b0000;
+    rd = 32'b0;
 
     if (MemRead) begin
       case (Funct3)
-        3'b010: begin //LW  (ler 32 bits e preservando o sinal)
-	        rd = Dataout;
-        end
-        3'b000: begin //LB (ler 8 bits e estende para 32 bits preservando o sinal)
-	        rd = $signed(Dataout[7:0]);
-	      end
-	      3'b001:begin //LH  (ler 16 bits e estende para 32 bits preservando o sinal)
-		      rd = $signed(Dataout[15:0]);
-		    end
-		    3'b100:begin //LBU  (ler 8 bits e estende para 32 bits sem preservando o sinal)
-		      rd = {24'b0, Dataout[7:0]};
-		    end
-        default: begin
-          rd = Dataout;
-        end
+        3'b010: rd = Dataout;                   // LW  - Load Word (32 bits com sinal)
+        3'b000: rd = $signed(Dataout[7:0]);    // LB  - Load Byte (8 bits com sinal)
+        3'b001: rd = $signed(Dataout[15:0]);   // LH  - Load Halfword (16 bits com sinal)
+        3'b100: rd = {24'b0, Dataout[7:0]};    // LBU - Load Byte Unsigned
+        default: rd = Dataout;                  // default (pode ajustar se precisar)
       endcase
     end else if (MemWrite) begin
       case (Funct3)
-        3'b010: begin  //SW (grava 32 bits na memoria)
+        3'b010: begin                          // SW - Store Word (32 bits)
           Wr = 4'b1111;
           Datain = wd;
         end
-        3'b000: begin //SB (grava 8 bits na memoria)
-	        Wr = 4'b0001;
-	        Datain[7:0] = wd[7:0];
-	      end
-	      3'b001: begin //SH ( grava 16 bits na memoria)
-	        Wr = 4'b0011;
-	        Datain[15:0] = wd[15:0];
-	      end
+        3'b000: begin                          // SB - Store Byte (8 bits)
+          Wr = 4'b0001;
+          Datain[7:0] = wd[7:0];
+        end
+        3'b001: begin                          // SH - Store Halfword (16 bits)
+          Wr = 4'b0011;
+          Datain[15:0] = wd[15:0];
+        end
         default: begin
           Wr = 4'b1111;
           Datain = wd;
