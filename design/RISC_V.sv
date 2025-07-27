@@ -1,5 +1,4 @@
 `timescale 1ns / 1ps
-
 module riscv #(
     parameter DATA_W = 32
 ) (
@@ -25,9 +24,10 @@ module riscv #(
   logic [6:0] Funct7;
   logic [2:0] Funct3;
   logic [3:0] Operation;
-  logic       Jump;     // corrigido: 1 bit
-  logic       Jalr;     // corrigido: 1 bit
+  logic       Jump;     // 1 bit
+  logic       Jalr;     // 1 bit
   logic [1:0] WBSel;
+  logic       Halt;
 
   // Instância do Controller
   Controller c (
@@ -41,15 +41,8 @@ module riscv #(
     .Branch(Branch),
     .Jump(Jump),
     .Jalr(Jalr),
-    .WBSel(WBSel)
-  );
-
-  // ALU Controller
-  ALUController ac (
-    .ALUOp(ALUop_Reg),
-    .Funct7(Funct7),
-    .Funct3(Funct3),
-    .Operation(Operation)
+    .WBSel(WBSel),
+    .Halt(Halt)
   );
 
   // Datapath
@@ -58,13 +51,14 @@ module riscv #(
     .reset(reset),
     .RegWrite(RegWrite),
     .MemtoReg(MemtoReg),
-    .ALUsrc(ALUSrc),
+    .ALUsrc(ALUSrc),    // uniforme o nome (ALUSrc)
     .MemWrite(MemWrite),
     .MemRead(MemRead),
     .Branch(Branch),
     .WBSel(WBSel),
     .Jump(Jump),
     .Jalr(Jalr),
+    .Halt(Halt),
     .ALUOp(ALUop),
     .ALU_CC(Operation),
     .opcode(opcode),
@@ -80,6 +74,14 @@ module riscv #(
     .addr(addr),
     .wr_data(wr_data),
     .rd_data(rd_data)
+  );
+
+  // ALU Controller (usa ALUOp_Reg do Datapath)
+  ALUController ac (
+    .ALUOp(ALUop_Reg),
+    .Funct7(Funct7),
+    .Funct3(Funct3),
+    .Operation(Operation)
   );
 
 endmodule
