@@ -10,8 +10,8 @@ module Controller (
     output logic MemWrite,
     output logic [1:0] ALUOp,
     output logic Branch,
-   output logic Jump,  // 1 bit apenas
-    output logic Jalr,s  // 1 bit apenas
+    output logic Jump,
+    output logic Jalr,
     output logic [1:0] WBSel
 );
 
