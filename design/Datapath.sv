@@ -21,6 +21,7 @@ module Datapath #(
     input logic [1:0] WBSel,   //  usando no mux final
     input logic [1:0] Jump,     // usando na passagem de estagios do pipeline
     input logic [1:0] Jalr,    // usando na passagem dos estagios do pipeline
+    input logic [1:0] Halt,
     input  logic [1:0] ALUOp,
     input  logic [ALU_CC_W -1:0] ALU_CC,
     output logic [6:0] opcode,
@@ -134,6 +135,7 @@ module Datapath #(
       B.WBSel  <= 0;/////
       B.Jump    <= 0;/////
       B.Jalr   <= 0;/////
+      B.Halt   <=0;
       B.Curr_Pc   <= 0;
       B.RD_One    <= 0;
       B.RD_Two    <= 0;
@@ -155,6 +157,7 @@ module Datapath #(
       B.WBSel  <= WBSel;/////
       B.Jump    <= Jump;  /////
       B.Jalr   <= Jalr;  /////
+      B.Halt   <= Halt;
       B.Curr_Pc   <= A.Curr_Pc;
       B.RD_One    <= Reg1;
       B.RD_Two    <= Reg2;
@@ -210,6 +213,7 @@ BranchUnit #(9) brunit (
      C.WBSel  <= 0;/////
       C.Jump    <= 0;/////
       C.Jalr   <= 0;/////
+      C.Halt   <= 0;
       C.RegWrite    <= 0;
       C.MemtoReg    <= 0;
       C.MemRead     <= 0;
@@ -226,6 +230,7 @@ BranchUnit #(9) brunit (
      C.WBSel  <= B.WBSel;/////
       C.Jump    <= B.Jump;/////
       C.Jalr   <= B.Jalr;/////
+      C.Halt   <= B.Halt;
       C.RegWrite    <= B.RegWrite;
       C.MemtoReg    <= B.MemtoReg;
       C.MemRead     <= B.MemRead;
@@ -265,6 +270,7 @@ BranchUnit #(9) brunit (
       D.WBSel        <= 0;///
        D.Jump          <= 0;///
       D.Jalr         <= 0; //
+      D.Halt         <= 0;
       D.RegWrite      <= 0;
       D.MemtoReg      <= 0;
       D.Pc_Imm        <= 0;
@@ -277,6 +283,7 @@ BranchUnit #(9) brunit (
       D.WBSel        <= C.WBSel;///
       D.Jump          <= C.Jump;//
       D.Jalr         <= C.Jalr;///
+      D.Halt         <= C.Halt;
       D.RegWrite      <= C.RegWrite;
       D.MemtoReg      <= C.MemtoReg;
       D.Pc_Imm        <= C.Pc_Imm;
@@ -286,8 +293,14 @@ BranchUnit #(9) brunit (
       D.MemReadData   <= ReadData;
       D.rd            <= C.rd;
       D.Curr_Instr    <= C.Curr_Instr;
+
+       if (D.Halt) begin
+      $display("[Datapath] Time=%0t |  HALT detectado em D.Halt | PC=%0d ", $time, PC);
+       $finish;  //finalizacao do halt
+    end
     end
   end
+
 
   // === WB (Write Back) ===
   // Sinais intermediários
