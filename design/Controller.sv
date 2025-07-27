@@ -12,7 +12,8 @@ module Controller (
     output logic Branch,
     output logic Jump,
     output logic Jalr,
-    output logic [1:0] WBSel
+    output logic [1:0] WBSel,
+    output Halt
 );
 
   localparam R_TYPE      = 7'b0110011;
@@ -22,6 +23,7 @@ module Controller (
   localparam B_TYPE      = 7'b1100011;
   localparam J_TYPE      = 7'b1101111;
   localparam JALR_TYPE   = 7'b1100111;
+  localparam Halt_TYPE   = 7'b1111111;
 
   assign ALUSrc   = (Opcode == I_TYPE_LOAD || Opcode == S_TYPE || Opcode == I_TYPE_ARITH || Opcode == JALR_TYPE);
   assign MemtoReg = (Opcode == I_TYPE_LOAD);
@@ -32,19 +34,22 @@ module Controller (
   assign ALUOp[1] = (Opcode == R_TYPE || Opcode == I_TYPE_ARITH);
   assign Branch   = (Opcode == B_TYPE);
   assign Jump     = (Opcode == J_TYPE);
+   assign Halt = (Opcode == Halt_TYPE);
   assign Jalr     = (Opcode == JALR_TYPE);
   assign WBSel = (Opcode == I_TYPE_LOAD) ? 2'b01 :
                  ((Opcode == J_TYPE || Opcode == JALR_TYPE) ? 2'b10 : 2'b00);
+ 
+
 
   // Bloco separado só para debug (imprime sempre que Opcode mudar)
-  always_comb begin
-    case (Opcode)
-      7'b1101111:  // jal
-        $display("[Controller] Time=%0t | Detected JAL  | WBSel=%b", $time, WBSel);
-      7'b1100111:  // jalr
-        $display("[Controller] Time=%0t | Detected JALR | WBSel=%b", $time, WBSel);
-      default: ;
-    endcase
-  end
+ always_comb begin
+  case (Opcode)
+    J_TYPE:    $display("[Controller] Time=%0t | Detected JAL  | WBSel=%b", $time, WBSel);
+    JALR_TYPE: $display("[Controller][] Time=%0t | Detected JALR | WBSel=%b", $time, WBSel);
+    Halt_TYPE: $display("[Controller] Time=%0t | Detected HALT | Opcode=%b", $time, Opcode);
+    default: ;
+  endcase
+end
+
 
 endmodule
