@@ -16,6 +16,7 @@ package Pipe_Buf_Reg_PKG;
     logic        Branch;
     logic        Jump;
     logic        Jalr;
+    logic        Halt;
     logic [1:0]  WBSel; 
     logic [8:0]  Curr_Pc;
     logic [31:0] RD_One;
@@ -37,6 +38,7 @@ package Pipe_Buf_Reg_PKG;
     logic        MemWrite;
     logic        Jump;
     logic        Jalr;
+    logic        Halt;
     logic [1:0]  WBSel; 
     logic [31:0] Pc_Imm;
     logic [31:0] Pc_Four;
@@ -55,6 +57,7 @@ package Pipe_Buf_Reg_PKG;
     logic        MemtoReg;
     logic        Jump;//
     logic        Jalr;//
+    logic        Halt;
     logic [1:0]  WBSel;  //
     logic [31:0] Pc_Imm;
     logic [31:0] Pc_Four;
