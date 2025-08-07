@@ -20,8 +20,8 @@ module Datapath #(
     Branch,
     input logic [1:0] WBSel,   //  usando no mux final
     input logic [1:0] Jump,     // usando na passagem de estagios do pipeline
-    input logic [1:0] Jalr,    // usando na passagem dos estagios do pipeline
-    input logic [1:0] Halt,
+    input logic [1:0] Jalr,    // usando na passagem de estagios do pipeline
+    input logic [1:0] Halt,     // usando na passagem de estagios do pipeline
     input  logic [1:0] ALUOp,
     input  logic [ALU_CC_W -1:0] ALU_CC,
     output logic [6:0] opcode,
@@ -54,6 +54,13 @@ module Datapath #(
   logic [DATA_W-1:0] FAmux_Result, FBmux_Result;
   logic Reg_Stall;
 
+  // *** NOVO: endereço de memória com offset ***
+  logic [DATA_W-1:0] Mem_Addr;
+
+  // Sinais para controle do HALT
+  logic halt_detected;
+  logic halt_finalized;
+
   // IF: Determina se o estágio ID deve ser limpo
   assign flush_ID_EX = PcSel;
 
@@ -66,7 +73,17 @@ module Datapath #(
   // === IF (Instruction Fetch) ===
   adder #(9) pcadd (PC, 9'b100, PCPlus4);  // PC + 4
   mux2 #(9) pcmux (PCPlus4, BrPC[PC_W-1:0], PcSel, Next_PC);  // Escolhe próximo PC
-  flopr #(9) pcreg (clk, reset, Next_PC, Reg_Stall, PC);      // Atualiza PC
+
+  // Congela PC se HALT detectado e ainda não finalizado
+  always_ff @(posedge clk or posedge reset) begin
+    if (reset)
+      PC <= 0;
+    else if (!Reg_Stall && !halt_detected)  // PC avança só se não há stall e HALT não detectado
+      PC <= Next_PC;
+    else if (!reset && halt_detected && !halt_finalized)
+      PC <= PC; // Congela PC após HALT detectado para não buscar mais instruções
+  end
+
   instructionmemory instr_mem (clk, PC, Instr);               // Busca instrução
 
   // Delay para flush do estágio ID
@@ -119,8 +136,6 @@ module Datapath #(
 
   // Geração de imediato
   imm_Gen Ext_Imm (A.Curr_Instr, ExtImm);
-    
-  
 
   // ID/EX pipeline register
   always @(posedge clk) begin
@@ -132,10 +147,10 @@ module Datapath #(
       B.MemWrite  <= 0;
       B.ALUOp     <= 0;
       B.Branch    <= 0;
-      B.WBSel  <= 0;/////
-      B.Jump    <= 0;/////
-      B.Jalr   <= 0;/////
-      B.Halt   <=0;
+      B.WBSel  <= 0;
+      B.Jump    <= 0;
+      B.Jalr   <= 0;
+      B.Halt    <= 0;
       B.Curr_Pc   <= 0;
       B.RD_One    <= 0;
       B.RD_Two    <= 0;
@@ -154,10 +169,10 @@ module Datapath #(
       B.MemWrite  <= MemWrite;
       B.ALUOp     <= ALUOp;
       B.Branch    <= Branch;
-      B.WBSel  <= WBSel;/////
-      B.Jump    <= Jump;  /////
-      B.Jalr   <= Jalr;  /////
-      B.Halt   <= Halt;
+      B.WBSel  <= WBSel;
+      B.Jump    <= Jump;
+      B.Jalr   <= Jalr;
+      B.Halt    <= Halt;
       B.Curr_Pc   <= A.Curr_Pc;
       B.RD_One    <= Reg1;
       B.RD_Two    <= Reg2;
@@ -194,26 +209,29 @@ module Datapath #(
 
   alu alu_module (FAmux_Result, SrcB, ALU_CC, ALUResult);
 
-BranchUnit #(9) brunit (
-    B.Curr_Pc,       // .Cur_PC
-    B.ImmG,          // .Imm
-    B.Branch,        // .Branch
-    B.Jump,           // .Jump. // pq tem essas entradas sendo q ja recebo input do controller dos sinais de Jump e Jalr
-    B.Jalr,          // .Jalr. 
-    ALUResult,       // .AluResult
-    BrImm,           // .PC_Imm
-    Old_PC_Four,     // .PC_Four
-    BrPC,            // .BrPC
-    PcSel            // .PcSel
-);
+  BranchUnit #(9) brunit (
+    B.Curr_Pc,
+    B.ImmG,
+    B.Branch,
+    B.Jump,
+    B.Jalr,
+    ALUResult,
+    BrImm,
+    Old_PC_Four,
+    BrPC,
+    PcSel
+  );
+
+  // *** Cálculo do endereço de memória somando Reg1 + imediato (offset) ***
+  assign Mem_Addr = B.RD_One + B.ImmG;
 
   // EX/MEM pipeline register
   always @(posedge clk) begin
     if (reset) begin
-     C.WBSel  <= 0;/////
-      C.Jump    <= 0;/////
-      C.Jalr   <= 0;/////
-      C.Halt   <= 0;
+      C.WBSel  <= 0;
+      C.Jump    <= 0;
+      C.Jalr   <= 0;
+      C.Halt    <= 0;
       C.RegWrite    <= 0;
       C.MemtoReg    <= 0;
       C.MemRead     <= 0;
@@ -226,11 +244,12 @@ BranchUnit #(9) brunit (
       C.rd          <= 0;
       C.func3       <= 0;
       C.func7       <= 0;
+      C.Curr_Instr  <= 0;
     end else begin
-     C.WBSel  <= B.WBSel;/////
-      C.Jump    <= B.Jump;/////
-      C.Jalr   <= B.Jalr;/////
-      C.Halt   <= B.Halt;
+      C.WBSel  <= B.WBSel;
+      C.Jump    <= B.Jump;
+      C.Jalr   <= B.Jalr;
+      C.Halt    <= B.Halt;
       C.RegWrite    <= B.RegWrite;
       C.MemtoReg    <= B.MemtoReg;
       C.MemRead     <= B.MemRead;
@@ -252,7 +271,7 @@ BranchUnit #(9) brunit (
     clk,
     C.MemRead,
     C.MemWrite,
-    C.Alu_Result[8:0],
+    Mem_Addr[DM_ADDRESS-1:0],  // Usa o endereço com offset aqui!
     C.RD_Two,
     C.func3,
     ReadData
@@ -260,17 +279,17 @@ BranchUnit #(9) brunit (
 
   assign wr       = C.MemWrite;
   assign reade    = C.MemRead;
-  assign addr     = C.Alu_Result[8:0];
+  assign addr     = Mem_Addr[DM_ADDRESS-1:0];
   assign wr_data  = C.RD_Two;
   assign rd_data  = ReadData;
 
-  // MEM/WB pipeline register
+  // MEM/WB pipeline register + controle HALT e finalização
   always @(posedge clk) begin
     if (reset) begin
-      D.WBSel        <= 0;///
-       D.Jump          <= 0;///
-      D.Jalr         <= 0; //
-      D.Halt         <= 0;
+      D.WBSel        <= 0;
+      D.Jump          <= 0;
+      D.Jalr         <= 0;
+      D.Halt        <= 0;
       D.RegWrite      <= 0;
       D.MemtoReg      <= 0;
       D.Pc_Imm        <= 0;
@@ -279,10 +298,14 @@ BranchUnit #(9) brunit (
       D.Alu_Result    <= 0;
       D.MemReadData   <= 0;
       D.rd            <= 0;
+      D.Curr_Instr    <= 0;
+
+      halt_detected <= 0;
+      halt_finalized <= 0;
     end else begin
-      D.WBSel        <= C.WBSel;///
-      D.Jump          <= C.Jump;//
-      D.Jalr         <= C.Jalr;///
+      D.WBSel        <= C.WBSel;
+      D.Jump          <= C.Jump;
+      D.Jalr         <= C.Jalr;
       D.Halt         <= C.Halt;
       D.RegWrite      <= C.RegWrite;
       D.MemtoReg      <= C.MemtoReg;
@@ -294,67 +317,71 @@ BranchUnit #(9) brunit (
       D.rd            <= C.rd;
       D.Curr_Instr    <= C.Curr_Instr;
 
-       if (D.Halt) begin
-      $display("[Datapath] Time=%0t |  HALT detectado em D.Halt | PC=%0d ", $time, PC);
-       $finish;  //finalizacao do halt
-    end
+      // Detecta HALT no pipeline a partir do estágio ID/EX ou EX/MEM
+      if ((B.Halt == 2'b01 || C.Halt == 2'b01) && !halt_detected)
+        halt_detected <= 1'b1;
+
+      // Finaliza só após HALT no estágio MEM/WB e sinal de finalização ainda não acionado
+      if (D.Halt == 2'b01 && halt_detected && !halt_finalized) begin
+        halt_finalized <= 1'b1;
+        $display("[Datapath] Time=%0t | HALT finalizado no MEM/WB | PC=%0d", $time, PC);
+        $finish;
+      end
     end
   end
-
 
   // === WB (Write Back) ===
   // Sinais intermediários
-logic [31:0] muxA_out;
+  logic [31:0] muxA_out;
 
+  // Primeiro mux: escolhe entre ALUResult e MemReadData
+  mux2 #(32) mux_A (
+      .A(D.Alu_Result),
+      .B(D.MemReadData),
+      .Sel(D.WBSel[0]),
+      .Out(muxA_out)
+  );
 
-// Primeiro mux: escolhe entre ALUResult e MemReadData
-mux2 #(32) mux_A (
-    .A(D.Alu_Result),
-    .B(D.MemReadData),
-    .Sel(D.WBSel[0]),    // bit menos significativo
-    .Out(muxA_out)
-);
+  // Segundo mux: escolhe entre resultado anterior e PC+4
+  mux2 #(32) mux_B (
+      .A(muxA_out),
+      .B(D.Pc_Four),
+      .Sel(D.WBSel[1]),
+      .Out(WrmuxSrc)
+  );
 
-// Segundo mux: escolhe entre resultado anterior e PC+4
-mux2 #(32) mux_B (
-    .A(muxA_out),
-    .B(D.Pc_Four),
-    .Sel(D.WBSel[1]),    // bit mais significativo
-    .Out(WrmuxSrc)
-);
+  // Atribuição final ao dado que será escrito no banco de registradores
+  assign WB_Data = WrmuxSrc;
 
-// Atribuição final ao dado que será escrito no banco de registradores
-assign WB_Data = WrmuxSrc;
-
-// Debug IF/ID
-always_ff @(posedge clk) begin
-  if (!reset) begin
-   // $display("[IF/ID] Time=%0t PC=0x%h Instr=0x%h Opcode=0x%h", $time, A.Curr_Pc, A.Curr_Instr, A.Curr_Instr[6:0]);
+  // Debug IF/ID
+  always_ff @(posedge clk) begin
+    if (!reset) begin
+      // $display("[IF/ID] Time=%0t PC=0x%h Instr=0x%h Opcode=0x%h", $time, A.Curr_Pc, A.Curr_Instr, A.Curr_Instr[6:0]);
+    end
   end
-end
 
-// Debug ID/EX
-always_ff @(posedge clk) begin
-  if (!reset) begin
-  //  $display("[ID/EX] Time=%0t ALUSrc=%b WBSel=%b Jump=%b Jalr=%b rd=%0d Imm=0x%h", $time,
-   //          B.ALUSrc, B.WBSel, B.Jump, B.Jalr, B.rd, B.ImmG);
+  // Debug ID/EX
+  always_ff @(posedge clk) begin
+    if (!reset) begin
+      // $display("[ID/EX] Time=%0t ALUSrc=%b WBSel=%b Jump=%b Jalr=%b rd=%0d Imm=0x%h", $time,
+      //          B.ALUSrc, B.WBSel, B.Jump, B.Jalr, B.rd, B.ImmG);
+    end
   end
-end
 
-// Debug EX/MEM
-always_ff @(posedge clk) begin
-  if (!reset) begin
-   // $display("[EX/MEM] Time=%0t RegWrite=%b MemRead=%b MemWrite=%b AluRes=0x%h rd=%0d", $time,
-   //          C.RegWrite, C.MemRead, C.MemWrite, C.Alu_Result, C.rd);
+  // Debug EX/MEM
+  always_ff @(posedge clk) begin
+    if (!reset) begin
+      // $display("[EX/MEM] Time=%0t RegWrite=%b MemRead=%b MemWrite=%b AluRes=0x%h rd=%0d", $time,
+      //          C.RegWrite, C.MemRead, C.MemWrite, C.Alu_Result, C.rd);
+    end
   end
-end
 
-// Debug MEM/WB
-always_ff @(posedge clk) begin
-  if (!reset) begin
-  //  $display("[MEM/WB] Time=%0t WBSel=%b Jump=%b Jalr=%b RegWrite=%b MemtoReg=%b rd=%0d WB_Data=0x%h", $time,
- //            D.WBSel, D.Jump, D.Jalr, D.RegWrite, D.MemtoReg, D.rd, WB_Data);
+  // Debug MEM/WB
+  always_ff @(posedge clk) begin
+    if (!reset) begin
+      // $display("[MEM/WB] Time=%0t WBSel=%b Jump=%b Jalr=%b RegWrite=%b MemtoReg=%b rd=%0d WB_Data=0x%h", $time,
+      //          D.WBSel, D.Jump, D.Jalr, D.RegWrite, D.MemtoReg, D.rd, WB_Data);
+    end
   end
-end
 
 endmodule
